@@ -1,24 +1,17 @@
 import { Inter } from "next/font/google";
-
 import Navbar from "./(components)/Navbar";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export default function RootLayout({
+export default function AddInfoLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className="flex">
-          <div className="">
-            <Navbar></Navbar>
-          </div>
-          <div className="w-full">{children}</div>
-        </div>
-      </body>
-    </html>
+    <div className="flex">
+      <div className="">
+        <Navbar></Navbar>
+      </div>
+      <div className="w-full bg-slate-50 p-2 lg:px-32">{children}</div>
+    </div>
   );
 }
