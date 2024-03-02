@@ -43,7 +43,18 @@ const page = () => {
     store.update({ ...values });
     Router.push("/add-info/Experience");
   }
-  console.log(store?.FullName);
+  let isChanged = () => {
+    let { FullName, Title, Summary } = form.watch();
+    if (
+      FullName == store.FullName &&
+      Title == store.Title &&
+      Summary == store.Summary
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-3xl font-semibold">Basic Information</h2>
@@ -102,7 +113,9 @@ const page = () => {
             )}
           />
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isChanged()}>
+            Next
+          </Button>
         </form>
       </Form>
     </div>

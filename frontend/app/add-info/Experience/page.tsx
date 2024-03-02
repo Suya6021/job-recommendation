@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { useStore } from "@/store/zustand";
+import { useRouter } from "next/navigation";
 const objSchema = z.object({
   Company: z.string(),
   Position: z.string(),
@@ -47,40 +48,29 @@ const page = () => {
     });
     form.reset();
   }
-  // data.update({
-  //   FullName: "Sushant Rao",
-  //   Title: "new",
-  //   Summary: "",
-  //   email: "String",
-  // });
-  // console.log(data);
-  let tempData = [
-    {
-      Company: "Apple Inc.",
-      Position: "Associate S?W Dev",
-      location: "Pune",
-      desc: `Developed a scalable and efficient web application using NodeJS & Express for user`,
-      duration: "2021-2023",
-    },
-    {
-      Company: "Apple Inc.",
-      Position: "Associate S?W Dev",
-      location: "Pune",
-      desc: `Developed a scalable and efficient web application using NodeJS & Express for user`,
-      duration: "2021-2023",
-    },
-  ];
+  let isChanged = () => {
+    if (
+      Object.values(form?.getValues()).filter((ele) => {
+        return ele != "";
+      }).length == 0
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const router = useRouter();
   return (
     <div className="p-4 flex  flex-col gap-12">
       <div className="flex flex-col gap-3">
-        {tempData?.map((elem, ind) => {
+        {data?.Experience?.map((elem, ind) => {
           return (
             <div
               key={ind}
               className="w-full flex flex-col bg-slate-200 rounded-md p-4 "
             >
               <div className="flex  justify-between gap-4 w-full">
-                <div className="flex justify-between w-full">
+                <div className="flex justify-between w-full lg:flex-row flex-col">
                   <div>
                     <div className="text-2xl font-semibold">
                       {elem?.Position}
@@ -97,8 +87,21 @@ const page = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button className="bg-green-600">Update</Button>
-                  <Button className="bg-red-600">Delete</Button>
+                  <Button className="bg-green-600 font-semibold tracking-wider ">
+                    Update
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      let temp = data?.Experience?.filter((element) => {
+                        return element != elem;
+                      });
+                      console.log(temp);
+                      data?.update({ Experience: temp });
+                    }}
+                    className="bg-red-600 font-semibold tracking-wider "
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
               <div className="col-span-2">{elem?.desc}</div>
@@ -198,9 +201,8 @@ const page = () => {
             )}
           />
           <div className="flex gap-4">
-            <Button className="w-full">Add</Button>
-            <Button type="submit" className="w-full">
-              Next
+            <Button type="submit" disabled={isChanged()} className="w-full">
+              Add
             </Button>
           </div>
         </form>

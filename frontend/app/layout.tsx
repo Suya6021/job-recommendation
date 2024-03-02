@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={dm.className}>
-        <div className="flex flex-col">
+        <div className="flex tracking-wider gap-4 bg-bg flex-col">
           <Navbar></Navbar>
           {children}
         </div>

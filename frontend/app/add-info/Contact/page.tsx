@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
+import { useStore } from "@/store/zustand";
 const objSchema = z.object({
   mobile: z.string(),
   email: z.string(),
@@ -23,18 +24,31 @@ const objSchema = z.object({
 });
 
 const page = () => {
+  const store = useStore((state) => state);
   const form = useForm<z.infer<typeof objSchema>>({
     resolver: zodResolver(objSchema),
     defaultValues: {
-      mobile: "",
-      email: "",
-      linkedin: "",
-      portfolio: "",
+      mobile: store?.mobile || "",
+      email: store?.email || "",
+      linkedin: store?.linkedin || "",
+      portfolio: store?.portfolio || "",
     },
   });
 
   function onSubmit(values: z.infer<typeof objSchema>) {
-    console.log(values);
+    store?.update({ ...values });
+  }
+  function isChanged() {
+    let { mobile, email, linkedin, portfolio } = form.watch();
+    if (
+      mobile == store.mobile &&
+      email == store.email &&
+      linkedin == store.linkedin &&
+      portfolio == store.portfolio
+    ) {
+      return true;
+    }
+    return false;
   }
 
   return (
@@ -113,7 +127,9 @@ const page = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button disabled={isChanged()} type="submit">
+            Submit
+          </Button>
         </form>
       </Form>
     </div>
