@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 const dm = DM_Sans({ weight: "300", subsets: ["latin"] });
 
@@ -16,7 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={dm.className}>{children}</body>
+      <body className={dm.className}>
+        <div className="flex flex-col">
+          <Navbar></Navbar>
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
+import { useStore } from "@/store/zustand";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   FullName: z.string().min(2).max(50),
@@ -27,31 +29,31 @@ const formSchema = z.object({
 });
 
 const page = () => {
+  let store = useStore((state) => state);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      FullName: "",
-      Title: "",
-      Summary: "",
-      // mobile: "",
-      // email: "",
-      // linkedin: "",
+      FullName: store?.FullName || "",
+      Title: store?.Title || "",
+      Summary: store?.Summary || "",
     },
   });
-
+  const Router = useRouter();
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    store.update({ ...values });
+    Router.push("/add-info/Experience");
   }
-
+  console.log(store?.FullName);
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col gap-4">
+      <h2 className="text-3xl font-semibold">Basic Information</h2>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-12"
+          className="flex flex-col gap-6"
         >
           <FormField
-            control={form.control}
+            // control={form.control}
             name="FullName"
             render={({ field }) => (
               <FormItem>
@@ -60,30 +62,13 @@ const page = () => {
                     placeholder="Full Name"
                     className="border-2 border-slate-400"
                     {...field}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="LName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder=""
-                    className="border-2 border-slate-400"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
+
           <FormField
             control={form.control}
             name="Title"
@@ -93,7 +78,6 @@ const page = () => {
                   <Input
                     placeholder="Title"
                     className="border-2 border-slate-400"
-                    {...field}
                     {...field}
                   />
                 </FormControl>
@@ -111,67 +95,13 @@ const page = () => {
                     placeholder="Summary"
                     className="border-2 border-slate-400"
                     {...field}
-                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="mobile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mobile</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder=""
-                    className="border-2 border-slate-400"
-                    {...field}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-          {/* <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder=""
-                    className="border-2 border-slate-400"
-                    {...field}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-          {/* <FormField
-            control={form.control}
-            name="linkedin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>LinkedIn</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder=""
-                    className="border-2 border-slate-400"
-                    {...field}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
+
           <Button type="submit">Submit</Button>
         </form>
       </Form>
