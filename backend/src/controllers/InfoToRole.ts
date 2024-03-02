@@ -3,8 +3,9 @@ import catchAsyncError from "../middleware/catchAsyncError";
 import dotenv from "dotenv";
 dotenv.config();
 import OpenAI from "openai";
-import axios from "axios";
 import cheerio from "cheerio";
+import { HttpProxyAgent } from "http-proxy-agent";
+import fetch from "node-fetch";
 
 type Respo = {
   jobs: string[];
@@ -52,9 +53,19 @@ const proxies = [
 
 async function fetchWithProxy(url: string) {
   const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+  const agent = new HttpProxyAgent(proxy);
+  const userAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0";
+  const options = {
+    agent,
+    headers: {
+      "User-Agent": userAgent,
+    },
+    timeout: 5000,
+  };
   try {
-    const response = await axios.get(url, { proxy });
-    return response.data;
+    const response = await fetch(url, options);
+    return await response.text();
   } catch (error) {
     console.error("Error fetching with proxy:", error);
     throw error;
@@ -94,8 +105,7 @@ export const Runner = catchAsyncError(
     )}`;
 
     try {
-      const response = await axios.get(url);
-      const html = response.data;
+      const html = await fetchWithProxy(url);
 
       console.log(html);
 
@@ -105,16 +115,10 @@ export const Runner = catchAsyncError(
 
       $(".scaffold-layout__list-item li").each((index, element) => {
         const title = $(".job-card-list__title a strong").text().trim();
-
-        // Extract company name
         const company = $(".job-card-container__primary-description")
           .text()
           .trim();
-
-        // Extract location
         const location = $(".job-card-container__metadata-item").text().trim();
-
-        // Extract logo image URL
         const logoImage = $(".job-card-list__logo img").attr("src");
 
         jobPostings.push({ title, company, location, logoImage });
@@ -124,7 +128,7 @@ export const Runner = catchAsyncError(
 
       res.status(201).json({
         success: true,
-        data: jobPostings,
+        data: respo,
       });
     } catch (error) {
       console.error("Error fetching job postings:", error);

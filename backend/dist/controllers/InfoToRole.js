@@ -17,8 +17,9 @@ const catchAsyncError_1 = __importDefault(require("../middleware/catchAsyncError
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const openai_1 = __importDefault(require("openai"));
-const axios_1 = __importDefault(require("axios"));
 const cheerio_1 = __importDefault(require("cheerio"));
+const http_proxy_agent_1 = require("http-proxy-agent");
+const node_fetch_1 = __importDefault(require("node-fetch"));
 const openai = new openai_1.default({
     apiKey: process.env.CHAT_GPT_KEY,
 });
@@ -53,9 +54,18 @@ const proxies = [
 function fetchWithProxy(url) {
     return __awaiter(this, void 0, void 0, function* () {
         const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+        const agent = new http_proxy_agent_1.HttpProxyAgent(proxy);
+        const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0";
+        const options = {
+            agent,
+            headers: {
+                "User-Agent": userAgent,
+            },
+            timeout: 5000,
+        };
         try {
-            const response = yield axios_1.default.get(url, { proxy });
-            return response.data;
+            const response = yield (0, node_fetch_1.default)(url, options);
+            return yield response.text();
         }
         catch (error) {
             console.error("Error fetching with proxy:", error);
@@ -85,27 +95,23 @@ exports.Runner = (0, catchAsyncError_1.default)((req, res, next) => __awaiter(vo
     console.log(keyword);
     const url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(keyword)}`;
     try {
-        const response = yield axios_1.default.get(url);
-        const html = response.data;
+        const html = yield fetchWithProxy(url);
         console.log(html);
         const $ = cheerio_1.default.load(html);
         const jobPostings = [];
         $(".scaffold-layout__list-item li").each((index, element) => {
             const title = $(".job-card-list__title a strong").text().trim();
-            // Extract company name
             const company = $(".job-card-container__primary-description")
                 .text()
                 .trim();
-            // Extract location
             const location = $(".job-card-container__metadata-item").text().trim();
-            // Extract logo image URL
             const logoImage = $(".job-card-list__logo img").attr("src");
             jobPostings.push({ title, company, location, logoImage });
         });
         console.log(jobPostings);
         res.status(201).json({
             success: true,
-            data: jobPostings,
+            data: respo,
         });
     }
     catch (error) {
