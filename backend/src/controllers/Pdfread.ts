@@ -1,29 +1,30 @@
-const fs = require('fs');
-const pdf = require('pdf-parse');
+import catchAsyncError from "../middleware/catchAsyncError";
+import { Request, Response } from "express";
+import path from "path";
+import fs from "fs";
+import PDFParser from "pdf-parse";
 
-// Function to read and extract data from a PDF file
-async function extractDataFromPDF(pdfPath:string) {
-  try {
-    // Read the PDF file
-    const dataBuffer = fs.readFileSync(pdfPath);
+const pdfBasePath = "./";
 
-    // Parse the PDF data
-    const data = await pdf(dataBuffer);
+export const ExtractFromPDF = catchAsyncError(
+  async (req: Request, res: Response) => {
+    try {
+      const pdfPath: string | undefined = "pdf.pdf";
 
-    // Extracted text content from the PDF
-    const textContent = data.text;
+      if (!pdfPath || !fs.existsSync(path.join(pdfBasePath, pdfPath))) {
+        return res
+          .status(400)
+          .json({ error: "Invalid or inaccessible PDF path" });
+      }
 
-    // You can also access other information such as metadata
-    const metadata = data.info;
+      const dataBuffer = fs.readFileSync(path.join(pdfBasePath, pdfPath));
+      const data = await PDFParser(dataBuffer);
 
-    // Do something with the extracted data
-    console.log('Text Content:', textContent);
-    console.log('Metadata:', metadata);
-  } catch (error) {
-    console.error('Error extracting data from PDF:', error);
+      const extractedText = data.text;
+      res.json({ extractedText });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
-}
-
-// Example usage
-const pdfFilePath = 'Resume-Suyog-Angaj.pdf';
-extractDataFromPDF(pdfFilePath);
+);

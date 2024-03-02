@@ -8,29 +8,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const fs = require('fs');
-const pdf = require('pdf-parse');
-// Function to read and extract data from a PDF file
-function extractDataFromPDF(pdfPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            // Read the PDF file
-            const dataBuffer = fs.readFileSync(pdfPath);
-            // Parse the PDF data
-            const data = yield pdf(dataBuffer);
-            // Extracted text content from the PDF
-            const textContent = data.text;
-            // You can also access other information such as metadata
-            const metadata = data.info;
-            // Do something with the extracted data
-            console.log('Text Content:', textContent);
-            console.log('Metadata:', metadata);
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExtractFromPDF = void 0;
+const catchAsyncError_1 = __importDefault(require("../middleware/catchAsyncError"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const pdf_parse_1 = __importDefault(require("pdf-parse"));
+const pdfBasePath = "./";
+exports.ExtractFromPDF = (0, catchAsyncError_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const pdfPath = "pdf.pdf";
+        if (!pdfPath || !fs_1.default.existsSync(path_1.default.join(pdfBasePath, pdfPath))) {
+            return res
+                .status(400)
+                .json({ error: "Invalid or inaccessible PDF path" });
         }
-        catch (error) {
-            console.error('Error extracting data from PDF:', error);
-        }
-    });
-}
-// Example usage
-const pdfFilePath = 'Resume-Suyog-Angaj.pdf';
-extractDataFromPDF(pdfFilePath);
+        const dataBuffer = fs_1.default.readFileSync(path_1.default.join(pdfBasePath, pdfPath));
+        const data = yield (0, pdf_parse_1.default)(dataBuffer);
+        const extractedText = data.text;
+        res.json({ extractedText });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}));
