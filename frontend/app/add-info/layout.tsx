@@ -7,11 +7,11 @@ export default function AddInfoLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex">
-      <div className="">
+    <div className="flex gap-4">
+      <div className="mx-2">
         <Navbar></Navbar>
       </div>
-      <div className="w-full bg-slate-50 p-2 lg:px-32">{children}</div>
+      <div className="w-full bg-white p-4 lg:p-8">{children}</div>
     </div>
   );
 }
