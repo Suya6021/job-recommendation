@@ -14,9 +14,16 @@ const Navbar = () => {
         height={90}
       ></Image>
       <ul className="flex gap-5 font-semibold text-lg">
-        <li > <Link href='/'>Home</Link></li>
-        <li><Link href='/add-info'>Resume builder</Link></li>
-        <li><Link href='/premium'>Premium</Link></li>
+        <li>
+          {" "}
+          <Link href="/">Home</Link>
+        </li>
+        <li>
+          <Link href="/add-info">Resume builder</Link>
+        </li>
+        <li>
+          <Link href="/premium">Premium</Link>
+        </li>
       </ul>
       <div className="flex w-[300px] gap-3 p-1  items-center bg-neutral-100 rounded-md">
         <LuSearch className="w-6 h-6 m-2" />
